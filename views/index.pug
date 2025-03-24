@@ -1,0 +1,141 @@
+doctype html
+html(lang="en")
+  head
+    title API Documentation
+    link(rel="stylesheet" href="/css/style.css")
+
+  body
+    h1.api-title API Documentation
+
+    h2 Base URL
+    p All endpoints are prefixed with: 
+      code http://localhost:4000/api
+
+    h2 Authentication
+    p Currently, no authentication is required for the API endpoints.
+
+    h2 Endpoints
+
+    h3 Health Check
+    .endpoint
+      span.method.get GET
+      code /health
+      p Returns the API health status.
+      h4 Response
+      pre
+        code
+          | {
+          |   "status": "OK"
+          | }
+
+    h3 Users
+
+    .endpoint
+      span.method.get GET
+      code /users
+      p Retrieve all users
+      h4 Response
+      pre
+        code
+          | [
+          |   {
+          |     "_id": "string",
+          |     "name": "string",
+          |     "email": "string",
+          |     "createdAt": "date"
+          |   }
+          | ]
+
+    .endpoint
+      span.method.get GET
+      code /users/:id
+      p Retrieve a specific user by ID
+      h4 Response
+      pre
+        code
+          | {
+          |   "_id": "string",
+          |   "name": "string",
+          |   "email": "string",
+          |   "createdAt": "date"
+          | }
+
+    .endpoint
+      span.method.post POST
+      code /users
+      p Create a new user
+      h4 Request Body
+      table
+        tr
+          th Field
+          th Type
+          th Required
+          th Description
+        tr
+          td name
+          td string
+          td Yes
+          td User's full name
+        tr
+          td email
+          td string
+          td Yes
+          td User's email address
+      h4 Response
+      pre
+        code
+          | {
+          |   "_id": "string",
+          |   "name": "string",
+          |   "email": "string",
+          |   "createdAt": "date"
+          | }
+
+    .endpoint
+      span.method.put PUT
+      code /users/:id
+      p Update an existing user
+      h4 Request Body
+      table
+        tr
+          th Field
+          th Type
+          th Required
+          th Description
+        tr
+          td name
+          td string
+          td No
+          td User's full name
+        tr
+          td email
+          td string
+          td No
+          td User's email address
+      h4 Response
+      pre
+        code
+          | {
+          |   "_id": "string",
+          |   "name": "string",
+          |   "email": "string",
+          |   "createdAt": "date"
+          | }
+
+    .endpoint
+      span.method.delete DELETE
+      code /users/:id
+      p Delete a user
+      h4 Response
+      p Returns status code 204 with no content on success.
+
+    h2 Error Responses
+    p The API returns standard HTTP status codes and JSON error messages:
+    pre
+      code
+        | {
+        |   "error": "Error Type",
+        |   "message": "Error description"
+        | }
+
+    script(src="/js/main.js") 
