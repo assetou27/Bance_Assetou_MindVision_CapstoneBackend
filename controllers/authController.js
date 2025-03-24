@@ -22,19 +22,27 @@ exports.register = async (req, res) => {
   });
 };
 
-// LOGIN - POST /api/auth/login
+// ✅ FIXED LOGIN - POST /api/auth/login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+
+  // 🔍 Find user by email
   const user = await User.findOne({ email });
+
+  // ❌ Return error if no user or password doesn't match
   if (!user || !(await user.matchPassword(password))) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
+
+  // ✅ Return token and user object (needed by frontend)
   res.json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
     token: generateToken(user._id),
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
   });
 };
 
