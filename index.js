@@ -1,82 +1,50 @@
-// Backend entry point - Importing required packages
+// Main server entry point
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-
-// Create middleware directory and file if it doesn't exist
-const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
-// Check if middleware directory exists, if not create it
-const middlewareDir = path.join(__dirname, 'middleware');
-if (!fs.existsSync(middlewareDir)) {
-  fs.mkdirSync(middlewareDir);
-}
-
-// Create error handler middleware file if it doesn't exist
-const errorHandlerPath = path.join(middlewareDir, 'errorHandler.js');
-if (!fs.existsSync(errorHandlerPath)) {
-  const errorHandlerCode = `
-const errorHandler = (err, req, res, next) => {
-  console.error('ERROR:', err.stack);
-  res.status(500).json({ 
-    message: 'Server error',
-    details: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-};
-
-module.exports = errorHandler;
-`;
-  fs.writeFileSync(errorHandlerPath, errorHandlerCode);
-}
-
-// Import the error handler middleware
-const errorHandler = require('./middleware/errorHandler');
-
-// Load environment variables
-dotenv.config();
-
-// Connect to MongoDB
-connectDB();
-
-// Initialize Express application
+// Initialize express app
 const app = express();
 
-// Middleware setup
-app.use(cors()); // Allow cross-origin requests
-app.use(express.json()); // Parse JSON request bodies
+// Connect to Database
+connectDB();
 
-/* ========== ROUTES ========== */
+// Middleware
+app.use(cors()); // Enable CORS for all requests
+app.use(express.json()); // Remove the extended option as it's not valid
 
-// 🧑‍💻 Auth routes (Register, Login, Get/Update/Delete user)
-const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
+// Define routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/appointments', require('./routes/appointments'));
+app.use('/api/services', require('./routes/services'));
+app.use('/api/blog', require('./routes/blog'));
 
-// 📅 Session routes (Book, View, Cancel, Reschedule sessions)
-const sessionRoutes = require('./routes/sessionRoutes');
-app.use('/api/sessions', sessionRoutes);
-
-// 🕒 Availability routes (Set/View/Remove coach unavailability)
-const availabilityRoutes = require('./routes/availabilityRoutes');
-app.use('/api/availability', availabilityRoutes);
-
-// ✅ Test route - simple endpoint to verify API is running
-app.get('/api', (req, res) => {
-  res.send('MindVision API is running...');
-});
-
-// Add a test route that doesn't require authentication
+// Simple test route to verify server is working
 app.get('/api/test', (req, res) => {
-  res.json({ message: 'Test endpoint is working!' });
+  res.json({ msg: 'API Running' });
 });
 
-// Register error handling middleware
-// IMPORTANT: Error middleware must be registered AFTER routes
-app.use(errorHandler);
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static('client/build'));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
-// Start server
+// Define port
 const PORT = process.env.PORT || 5000;
+
+// Start server with better error handling
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.error('Server error:', err.message);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Try another port.`);
+  }
 });

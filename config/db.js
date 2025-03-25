@@ -1,32 +1,26 @@
-// db.js - MongoDB database connection configuration
-
-/**
- * MongoDB connection using Mongoose
- * This file handles database connection and error reporting
- * Environment variables are loaded from .env file
- */
+// config/db.js
 const mongoose = require('mongoose');
 
-/**
- * Connects to the MongoDB database using credentials from .env
- * Uses modern connection options and proper error handling
- * @returns {Promise} Resolves when connection is successful
- */
 const connectDB = async () => {
   try {
-    // Connect to MongoDB using the URL from environment variables
-    await mongoose.connect(process.env.MONGODB_URL, {
-      // These options ensure compatibility with newer MongoDB versions
+    // Use the correct environment variable name from your .env file
+    const mongoURI = process.env.MONGODB_URL;
+    
+    // Check if MongoDB URL is defined
+    if (!mongoURI) {
+      throw new Error('MongoDB URL is not defined in environment variables');
+    }
+    
+    const conn = await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: true
     });
     
-    // Log successful connection
-    console.log('✅ MongoDB connected successfully');
-  } catch (error) {
-    // Log connection failure and terminate application
-    console.error('❌ MongoDB connection failed:', error.message);
-    process.exit(1); // Stop the app if DB connection fails
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    return conn;
+  } catch (err) {
+    console.error(`Error connecting to MongoDB: ${err.message}`);
+    process.exit(1); // Exit process with failure
   }
 };
 
