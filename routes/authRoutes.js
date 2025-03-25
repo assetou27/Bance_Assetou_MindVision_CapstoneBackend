@@ -9,18 +9,19 @@ const {
   getUserByEmail,
   getUserByName
 } = require('../controllers/authController');
+const auth = require('../middleware/auth'); // Import the auth middleware
 
-// Auth routes
+// Public routes (no auth required)
+// These endpoints don't require authentication since they're used for registration and login
 router.post('/register', register);
 router.post('/login', login);
 
-// Bonus: recherche
-router.get('/email/:email', getUserByEmail);
-router.get('/name/:name', getUserByName);
-
-// CRUD par ID
-router.get('/:id', getUser);
-router.patch('/:id', updateUser);
-router.delete('/:id', deleteUser);
+// Protected routes (auth required)
+// These endpoints require a valid JWT token to access
+router.get('/email/:email', auth, getUserByEmail);
+router.get('/name/:name', auth, getUserByName);
+router.get('/:id', auth, getUser);
+router.patch('/:id', auth, updateUser);
+router.delete('/:id', auth, deleteUser);
 
 module.exports = router;

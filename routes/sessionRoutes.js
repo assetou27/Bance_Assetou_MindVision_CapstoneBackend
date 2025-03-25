@@ -8,23 +8,33 @@ const {
   cancelSession,
   rescheduleSession
 } = require('../controllers/sessionController');
+const auth = require('../middleware/auth'); // Import the auth middleware
+
+// All session routes should be protected since they involve
+// accessing or modifying user session data
 
 // POST - book a new session
-router.post('/', createSession);
+// Only authenticated users should be able to book sessions
+router.post('/', auth, createSession);
 
 // GET - get one session
-router.get('/:id', getSessionById);
+// Only authenticated users should be able to view session details
+router.get('/:id', auth, getSessionById);
 
 // GET - sessions by coach
-router.get('/coach/:coachId', getSessionsByCoach);
+// This route is critical for your dashboard functionality
+router.get('/coach/:coachId', auth, getSessionsByCoach);
 
 // GET - sessions by client
-router.get('/client/:clientId', getSessionsByClient);
+// This route is critical for your dashboard functionality
+router.get('/client/:clientId', auth, getSessionsByClient);
 
 // PATCH - cancel session
-router.patch('/:id/cancel', cancelSession);
+// Only authenticated users should be able to cancel sessions
+router.patch('/:id/cancel', auth, cancelSession);
 
 // PATCH - reschedule session
-router.patch('/:id/reschedule', rescheduleSession);
+// Only authenticated users should be able to reschedule sessions
+router.patch('/:id/reschedule', auth, rescheduleSession);
 
 module.exports = router;

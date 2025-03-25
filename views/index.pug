@@ -1,69 +1,153 @@
 doctype html
 html(lang="en")
   head
-    title API Documentation
+    title MindVision API Documentation
     link(rel="stylesheet" href="/css/style.css")
 
   body
-    h1.api-title API Documentation
+    h1.api-title MindVision API Documentation
 
     h2 Base URL
     p All endpoints are prefixed with: 
-      code http://localhost:4000/api
+      code http://localhost:5000/api
 
     h2 Authentication
-    p Currently, no authentication is required for the API endpoints.
+    p Authentication is required for most API endpoints. Include a JWT token in the Authorization header:
+    pre
+      code
+        | Authorization: Bearer your-token-here
 
     h2 Endpoints
 
     h3 Health Check
     .endpoint
       span.method.get GET
-      code /health
+      code /
       p Returns the API health status.
       h4 Response
       pre
         code
+          | "MindVision API is running..."
+
+    h3 Authentication
+
+    .endpoint
+      span.method.post POST
+      code /auth/register
+      p Register a new user (coach or client)
+      h4 Request Body
+      table
+        tr
+          th Field
+          th Type
+          th Required
+          th Description
+        tr
+          td name
+          td string
+          td Yes
+          td User's full name
+        tr
+          td email
+          td string
+          td Yes
+          td User's email address
+        tr
+          td password
+          td string
+          td Yes
+          td User's password
+        tr
+          td role
+          td string
+          td Yes
+          td "coach" or "client"
+      h4 Response
+      pre
+        code
           | {
-          |   "status": "OK"
+          |   "userId": "string",
+          |   "token": "string",
+          |   "role": "string"
           | }
 
-    h3 Users
+    .endpoint
+      span.method.post POST
+      code /auth/login
+      p Login with existing credentials
+      h4 Request Body
+      table
+        tr
+          th Field
+          th Type
+          th Required
+          th Description
+        tr
+          td email
+          td string
+          td Yes
+          td User's email address
+        tr
+          td password
+          td string
+          td Yes
+          td User's password
+      h4 Response
+      pre
+        code
+          | {
+          |   "userId": "string",
+          |   "token": "string",
+          |   "role": "string",
+          |   "name": "string"
+          | }
+
+    h3 Sessions
 
     .endpoint
       span.method.get GET
-      code /users
-      p Retrieve all users
+      code /sessions/coach/:id
+      p Retrieve sessions for a specific coach (Requires Authentication)
       h4 Response
       pre
         code
           | [
           |   {
           |     "_id": "string",
-          |     "name": "string",
-          |     "email": "string",
-          |     "createdAt": "date"
+          |     "date": "date",
+          |     "duration": "number",
+          |     "clientId": {
+          |       "name": "string",
+          |       "_id": "string"
+          |     },
+          |     "status": "string"
           |   }
           | ]
 
     .endpoint
       span.method.get GET
-      code /users/:id
-      p Retrieve a specific user by ID
+      code /sessions/client/:id
+      p Retrieve sessions for a specific client (Requires Authentication)
       h4 Response
       pre
         code
-          | {
-          |   "_id": "string",
-          |   "name": "string",
-          |   "email": "string",
-          |   "createdAt": "date"
-          | }
+          | [
+          |   {
+          |     "_id": "string",
+          |     "date": "date",
+          |     "duration": "number",
+          |     "coachId": {
+          |       "name": "string",
+          |       "_id": "string"
+          |     },
+          |     "status": "string"
+          |   }
+          | ]
 
     .endpoint
       span.method.post POST
-      code /users
-      p Create a new user
+      code /sessions
+      p Create a new session booking (Requires Authentication)
       h4 Request Body
       table
         tr
@@ -72,29 +156,44 @@ html(lang="en")
           th Required
           th Description
         tr
-          td name
-          td string
+          td date
+          td date
           td Yes
-          td User's full name
+          td Session date and time
         tr
-          td email
+          td duration
+          td number
+          td Yes
+          td Session duration in minutes
+        tr
+          td coachId
           td string
           td Yes
-          td User's email address
+          td ID of the coach
+        tr
+          td clientId
+          td string
+          td Yes
+          td ID of the client
       h4 Response
       pre
         code
           | {
           |   "_id": "string",
-          |   "name": "string",
-          |   "email": "string",
+          |   "date": "date",
+          |   "duration": "number",
+          |   "coachId": "string",
+          |   "clientId": "string",
+          |   "status": "string",
           |   "createdAt": "date"
           | }
 
+    h3 Availability
+
     .endpoint
-      span.method.put PUT
-      code /users/:id
-      p Update an existing user
+      span.method.post POST
+      code /availability
+      p Set coach availability (Requires Authentication)
       h4 Request Body
       table
         tr
@@ -103,39 +202,45 @@ html(lang="en")
           th Required
           th Description
         tr
-          td name
+          td coachId
           td string
-          td No
-          td User's full name
+          td Yes
+          td ID of the coach
         tr
-          td email
-          td string
-          td No
-          td User's email address
+          td dates
+          td array
+          td Yes
+          td Array of unavailable dates/times
       h4 Response
       pre
         code
           | {
           |   "_id": "string",
-          |   "name": "string",
-          |   "email": "string",
+          |   "coachId": "string",
+          |   "dates": ["date"],
           |   "createdAt": "date"
           | }
 
     .endpoint
-      span.method.delete DELETE
-      code /users/:id
-      p Delete a user
+      span.method.get GET
+      code /availability/:coachId
+      p Get coach availability (Requires Authentication)
       h4 Response
-      p Returns status code 204 with no content on success.
+      pre
+        code
+          | {
+          |   "_id": "string",
+          |   "coachId": "string",
+          |   "dates": ["date"],
+          |   "createdAt": "date"
+          | }
 
     h2 Error Responses
     p The API returns standard HTTP status codes and JSON error messages:
     pre
       code
         | {
-        |   "error": "Error Type",
         |   "message": "Error description"
         | }
 
-    script(src="/js/main.js") 
+    script(src="/js/main.js")
