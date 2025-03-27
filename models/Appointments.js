@@ -11,7 +11,7 @@ const AppointmentSchema = new mongoose.Schema({
   service: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Service',
-    required: false // changed from true to false
+    required: false
   },
   date: {
     type: Date,

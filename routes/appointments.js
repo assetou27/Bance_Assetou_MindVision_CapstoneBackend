@@ -6,15 +6,12 @@ const router = express.Router();
 const { auth, admin } = require('../middleware/auth');
 const Appointment = require('../models/Appointments');
 
-// Example: If you don't need "Service", remove references to it
-// const Service = require('../models/Service'); // <-- Removed if not needed
 
 // @route   POST api/appointments
 // @desc    Create a new appointment (Private)
 router.post('/', auth, async (req, res) => {
   try {
     // FRONTEND currently sends: { date, time, description }
-    // Let's unify them here
     const { date, time, description } = req.body;
 
     // If you *must* require a service, then you'd do:
@@ -27,7 +24,7 @@ router.post('/', auth, async (req, res) => {
     // => "2025-04-29T11:30:00"
     const combinedDateTime = new Date(`${date}T${time}:00`);
 
-    // Create new appointment (omitting 'service' if you don't need it)
+    // Create new appointment (omitting 'service')
     const appointment = new Appointment({
       user: req.user.id,
       date: combinedDateTime,

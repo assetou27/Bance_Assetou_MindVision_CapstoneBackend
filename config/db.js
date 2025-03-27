@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    // Use the correct environment variable name from your .env file
+    // To use the correct environment variable name from your .env file
     const mongoURI = process.env.MONGODB_URL;
     
     // Check if MongoDB URL is defined

@@ -1,6 +1,6 @@
 // routes/services.js - Service routes
 const express = require('express');
-const router = express.Router();  // This line is missing in your file
+const router = express.Router();  
 const { auth, admin } = require('../middleware/auth');
 const Service = require('../models/Service');
 
