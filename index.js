@@ -1,8 +1,11 @@
+// index.js
 // Main server entry point
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const path = require('path');
+const fs = require('fs'); // Make sure 'fs' is imported if using fs.existsSync
 require('dotenv').config();
 
 // Initialize express app
@@ -12,13 +15,17 @@ const app = express();
 connectDB();
 
 // Middleware
-// app.use(cors()); // Enable CORS for all requests
 app.use(cors({
-  origin: ['https://abmindvision.netlify.app/', "http://localhost:3000"], // Replace with the actual deployed Netlify URL
+  origin: [
+    'https://abmindvision.netlify.app',
+    'http://localhost:3000'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json()); // Remove the extended option as it's not valid
+
+
+app.use(express.json()); // parse JSON
 
 // Define routes
 app.use('/api/auth', require('./routes/auth'));
@@ -32,22 +39,15 @@ app.get('/api/test', (req, res) => {
 });
 
 // Serve static assets in production
-// if (process.env.NODE_ENV === 'production') {
-// Set static folder
-//   app.use(express.static('client/build'));
-  
-//   app.get('*', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-//   });
-// }
-
-if (process.env.NODE_ENV === 'production' && fs.existsSync(path.join(__dirname, 'client/build'))) {
+if (
+  process.env.NODE_ENV === 'production' &&
+  fs.existsSync(path.join(__dirname, 'client/build'))
+) {
   app.use(express.static('client/build'));
   app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
 }
-
 
 // Define port
 const PORT = process.env.PORT || 5000;

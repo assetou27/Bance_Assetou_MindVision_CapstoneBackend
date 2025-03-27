@@ -1,13 +1,15 @@
+// routes/auth.js
 // Authentication routes
+
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+// We only use the 'auth' middleware for protected routes:
 const { auth } = require('../middleware/auth');
 const User = require('../models/User');
 
 // @route   POST api/auth/register
-// @desc    Register a user
-// @access  Public
+// @desc    Register a user (Public)
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -19,19 +21,13 @@ router.post('/register', async (req, res) => {
     }
     
     // Create new user
-    user = new User({
-      name,
-      email,
-      password
-    });
+    user = new User({ name, email, password });
     
     // Save user to database
     await user.save();
     
     // Create JWT token
-    const payload = {
-      id: user.id
-    };
+    const payload = { id: user.id };
     
     jwt.sign(
       payload,
@@ -49,8 +45,7 @@ router.post('/register', async (req, res) => {
 });
 
 // @route   POST api/auth/login
-// @desc    Authenticate user & get token
-// @access  Public
+// @desc    Authenticate user & get token (Public)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,9 +63,7 @@ router.post('/login', async (req, res) => {
     }
     
     // Create JWT token
-    const payload = {
-      id: user.id
-    };
+    const payload = { id: user.id };
     
     jwt.sign(
       payload,
@@ -88,10 +81,10 @@ router.post('/login', async (req, res) => {
 });
 
 // @route   GET api/auth/me
-// @desc    Get current user
-// @access  Private
+// @desc    Get current user (Private)
 router.get('/me', auth, async (req, res) => {
   try {
+    // Only accessible if valid token is provided
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
   } catch (err) {
