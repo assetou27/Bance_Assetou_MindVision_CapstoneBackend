@@ -14,7 +14,7 @@ connectDB();
 // Middleware
 // app.use(cors()); // Enable CORS for all requests
 app.use(cors({
-  origin: 'https://abmindvision.netlify.app/', // Replace with the actual deployed Netlify URL
+  origin: ['https://abmindvision.netlify.app/', "http://localhost:3000"], // Replace with the actual deployed Netlify URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
